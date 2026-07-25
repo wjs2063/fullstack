@@ -60,7 +60,7 @@ export const Route = createFileRoute("/reset-password")({
   head: () => ({
     meta: [
       {
-        title: "Reset Password - FastAPI Template",
+        title: "Reset Password - FlowOps",
       },
     ],
   }),
@@ -103,8 +103,14 @@ function ResetPassword() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Reset Password</h1>
+          <div className="flex flex-col gap-1">
+            <p className="console-label">Security</p>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Choose a new password
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Use at least eight characters for your new credential.
+            </p>
           </div>
 
           <div className="grid gap-4">

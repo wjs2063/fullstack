@@ -6,6 +6,7 @@ import { type UserPublic, UsersService } from "@/client"
 import AddUser from "@/components/Admin/AddUser"
 import { columns, type UserTableData } from "@/components/Admin/columns"
 import { DataTable } from "@/components/Common/DataTable"
+import { PageHeader } from "@/components/Common/PageHeader"
 import PendingUsers from "@/components/Pending/PendingUsers"
 import useAuth from "@/hooks/useAuth"
 
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/_layout/admin")({
   head: () => ({
     meta: [
       {
-        title: "Admin - FastAPI Template",
+        title: "Users - FlowOps",
       },
     ],
   }),
@@ -58,16 +59,23 @@ function UsersTable() {
 function Admin() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Users</h1>
-          <p className="text-muted-foreground">
-            Manage user accounts and permissions
+      <PageHeader
+        eyebrow="Administration"
+        title="Users & access"
+        description="Manage user accounts, roles, and access to this workspace."
+        action={<AddUser />}
+      />
+      <div className="console-surface overflow-hidden">
+        <div className="border-b px-5 py-4">
+          <h2 className="text-sm font-semibold">User directory</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Accounts with access to the control plane
           </p>
         </div>
-        <AddUser />
+        <div className="p-4">
+          <UsersTable />
+        </div>
       </div>
-      <UsersTable />
     </div>
   )
 }

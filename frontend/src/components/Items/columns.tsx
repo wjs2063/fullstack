@@ -62,6 +62,24 @@ export const columns: ColumnDef<ItemPublic>[] = [
     },
   },
   {
+    accessorKey: "created_at",
+    header: "Created",
+    cell: ({ row }) => {
+      const createdAt = row.original.created_at
+      return (
+        <span className="text-xs text-muted-foreground">
+          {createdAt
+            ? new Intl.DateTimeFormat("en", {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+              }).format(new Date(createdAt))
+            : "—"}
+        </span>
+      )
+    },
+  },
+  {
     id: "actions",
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => (

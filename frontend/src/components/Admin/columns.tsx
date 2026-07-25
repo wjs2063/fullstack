@@ -17,6 +17,9 @@ export const columns: ColumnDef<UserTableData>[] = [
       const fullName = row.original.full_name
       return (
         <div className="flex items-center gap-2">
+          <span className="grid size-7 place-items-center rounded-md bg-primary/10 text-[10px] font-semibold uppercase text-primary">
+            {(fullName || row.original.email).slice(0, 2)}
+          </span>
           <span
             className={cn("font-medium", !fullName && "text-muted-foreground")}
           >
@@ -43,7 +46,7 @@ export const columns: ColumnDef<UserTableData>[] = [
     header: "Role",
     cell: ({ row }) => (
       <Badge variant={row.original.is_superuser ? "default" : "secondary"}>
-        {row.original.is_superuser ? "Superuser" : "User"}
+        {row.original.is_superuser ? "Admin" : "Member"}
       </Badge>
     ),
   },
@@ -63,6 +66,24 @@ export const columns: ColumnDef<UserTableData>[] = [
         </span>
       </div>
     ),
+  },
+  {
+    accessorKey: "created_at",
+    header: "Created",
+    cell: ({ row }) => {
+      const createdAt = row.original.created_at
+      return (
+        <span className="text-xs text-muted-foreground">
+          {createdAt
+            ? new Intl.DateTimeFormat("en", {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+              }).format(new Date(createdAt))
+            : "—"}
+        </span>
+      )
+    },
   },
   {
     id: "actions",

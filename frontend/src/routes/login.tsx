@@ -44,7 +44,7 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       {
-        title: "Log In - FastAPI Template",
+        title: "Log In - FlowOps",
       },
     ],
   }),
@@ -74,8 +74,14 @@ function Login() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Login to your account</h1>
+          <div className="flex flex-col gap-1">
+            <p className="console-label">Welcome back</p>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Sign in to FlowOps
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Enter your credentials to access the control plane.
+            </p>
           </div>
 
           <div className="grid gap-4">

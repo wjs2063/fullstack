@@ -42,7 +42,7 @@ export const Route = createFileRoute("/recover-password")({
   head: () => ({
     meta: [
       {
-        title: "Recover Password - FastAPI Template",
+        title: "Recover Password - FlowOps",
       },
     ],
   }),
@@ -84,8 +84,14 @@ function RecoverPassword() {
           onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-col gap-6"
         >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Password Recovery</h1>
+          <div className="flex flex-col gap-1">
+            <p className="console-label">Account recovery</p>
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Reset your access
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              We will send password reset instructions to your email.
+            </p>
           </div>
 
           <div className="grid gap-4">

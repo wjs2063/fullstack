@@ -16,6 +16,7 @@ const PendingUsers = () => (
         <TableHead>Email</TableHead>
         <TableHead>Role</TableHead>
         <TableHead>Status</TableHead>
+        <TableHead>Created</TableHead>
         <TableHead>
           <span className="sr-only">Actions</span>
         </TableHead>
@@ -38,6 +39,9 @@ const PendingUsers = () => (
               <Skeleton className="size-2 rounded-full" />
               <Skeleton className="h-4 w-12" />
             </div>
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-24" />
           </TableCell>
           <TableCell>
             <div className="flex justify-end">

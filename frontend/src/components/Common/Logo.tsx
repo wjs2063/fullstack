@@ -1,11 +1,7 @@
 import { Link } from "@tanstack/react-router"
+import { Orbit } from "lucide-react"
 
-import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import icon from "/assets/images/fastapi-icon.svg"
-import iconLight from "/assets/images/fastapi-icon-light.svg"
-import logo from "/assets/images/fastapi-logo.svg"
-import logoLight from "/assets/images/fastapi-logo-light.svg"
 
 interface LogoProps {
   variant?: "full" | "icon" | "responsive"
@@ -18,39 +14,36 @@ export function Logo({
   className,
   asLink = true,
 }: LogoProps) {
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
-
-  const fullLogo = isDark ? logoLight : logo
-  const iconLogo = isDark ? iconLight : icon
-
-  const content =
-    variant === "responsive" ? (
-      <>
-        <img
-          src={fullLogo}
-          alt="FastAPI"
+  const showText = variant !== "icon"
+  const content = (
+    <div
+      className={cn(
+        "flex items-center gap-2.5",
+        variant === "responsive" && "group-data-[collapsible=icon]:gap-0",
+        className,
+      )}
+    >
+      <span className="relative grid size-8 shrink-0 place-items-center rounded-md bg-cyan-400 text-slate-950 shadow-[0_0_22px_rgb(34_211_238/0.22)]">
+        <Orbit className="size-5" strokeWidth={2.2} />
+        <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full border-2 border-sidebar bg-orange-400" />
+      </span>
+      {showText && (
+        <span
           className={cn(
-            "h-6 w-auto group-data-[collapsible=icon]:hidden",
-            className,
+            "min-w-0 leading-none",
+            variant === "responsive" && "group-data-[collapsible=icon]:hidden",
           )}
-        />
-        <img
-          src={iconLogo}
-          alt="FastAPI"
-          className={cn(
-            "size-5 hidden group-data-[collapsible=icon]:block",
-            className,
-          )}
-        />
-      </>
-    ) : (
-      <img
-        src={variant === "full" ? fullLogo : iconLogo}
-        alt="FastAPI"
-        className={cn(variant === "full" ? "h-6 w-auto" : "size-5", className)}
-      />
-    )
+        >
+          <span className="block text-[15px] font-semibold tracking-tight">
+            FlowOps
+          </span>
+          <span className="mt-1 block text-[9px] font-medium uppercase tracking-[0.18em] opacity-50">
+            Admin Console
+          </span>
+        </span>
+      )}
+    </div>
+  )
 
   if (!asLink) {
     return content

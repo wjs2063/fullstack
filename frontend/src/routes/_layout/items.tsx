@@ -5,6 +5,7 @@ import { Suspense } from "react"
 
 import { ItemsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
+import { PageHeader } from "@/components/Common/PageHeader"
 import AddItem from "@/components/Items/AddItem"
 import { columns } from "@/components/Items/columns"
 import PendingItems from "@/components/Pending/PendingItems"
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_layout/items")({
   head: () => ({
     meta: [
       {
-        title: "Items - FastAPI Template",
+        title: "Items - FlowOps",
       },
     ],
   }),
@@ -56,14 +57,23 @@ function ItemsTable() {
 function Items() {
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Items</h1>
-          <p className="text-muted-foreground">Create and manage your items</p>
+      <PageHeader
+        eyebrow="Resources"
+        title="Items"
+        description="Create, inspect, and manage the resources available in this workspace."
+        action={<AddItem />}
+      />
+      <div className="console-surface overflow-hidden">
+        <div className="border-b px-5 py-4">
+          <h2 className="text-sm font-semibold">Item inventory</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            Workspace records returned by the backend API
+          </p>
         </div>
-        <AddItem />
+        <div className="p-4">
+          <ItemsTable />
+        </div>
       </div>
-      <ItemsTable />
     </div>
   )
 }
