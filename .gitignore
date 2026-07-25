@@ -1,5 +1,10 @@
 .vscode/*
 !.vscode/extensions.json
+
+# JetBrains IDEs (PyCharm, IntelliJ IDEA)
+.idea/
+*.iml
+
 node_modules/
 /test-results/
 /playwright-report/
