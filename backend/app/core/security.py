@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
+from anyio import to_thread
 from pwdlib import PasswordHash
 from pwdlib.hashers.argon2 import Argon2Hasher
 from pwdlib.hashers.bcrypt import BcryptHasher
@@ -34,3 +35,13 @@ def verify_password(
 
 def get_password_hash(password: str) -> str:
     return password_hash.hash(password)
+
+
+async def verify_password_async(
+    plain_password: str, hashed_password: str
+) -> tuple[bool, str | None]:
+    return await to_thread.run_sync(verify_password, plain_password, hashed_password)
+
+
+async def get_password_hash_async(password: str) -> str:
+    return await to_thread.run_sync(get_password_hash, password)

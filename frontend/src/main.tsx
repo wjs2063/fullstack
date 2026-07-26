@@ -18,13 +18,22 @@ OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }
 
+const isAuthenticationError = (error: unknown) =>
+  error instanceof ApiError && [401, 403].includes(error.status)
+
 const handleApiError = (error: Error) => {
-  if (error instanceof ApiError && [401, 403].includes(error.status)) {
+  if (isAuthenticationError(error)) {
     localStorage.removeItem("access_token")
     window.location.href = "/login"
   }
 }
 const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) =>
+        !isAuthenticationError(error) && failureCount < 3,
+    },
+  },
   queryCache: new QueryCache({
     onError: handleApiError,
   }),

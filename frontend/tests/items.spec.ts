@@ -14,6 +14,16 @@ test("Items page is accessible and shows correct title", async ({ page }) => {
   await expect(page.getByText("Create and manage your items")).toBeVisible()
 })
 
+test("Sidebar logo navigates to the overview", async ({ page }) => {
+  await page.goto("/items")
+  await page.getByRole("link", { name: "Go to overview" }).click()
+
+  await expect(page).toHaveURL("/")
+  await expect(
+    page.getByRole("heading", { name: "Workspace overview" }),
+  ).toBeVisible()
+})
+
 test("Add Item button is visible", async ({ page }) => {
   await page.goto("/items")
   await expect(page.getByRole("button", { name: "Add Item" })).toBeVisible()

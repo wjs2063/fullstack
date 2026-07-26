@@ -49,5 +49,13 @@ export function Logo({
     return content
   }
 
-  return <Link to="/">{content}</Link>
+  return (
+    <Link
+      to="/"
+      aria-label="Go to overview"
+      className="block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+    >
+      {content}
+    </Link>
+  )
 }

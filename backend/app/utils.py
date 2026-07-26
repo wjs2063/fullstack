@@ -101,6 +101,42 @@ def generate_new_account_email(
     return EmailData(html_content=html_content, subject=subject)
 
 
+def _send_email_data(*, email_to: str, email_data: EmailData) -> None:
+    send_email(
+        email_to=email_to,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+    )
+
+
+def send_test_email(*, email_to: str) -> None:
+    try:
+        email_data = generate_test_email(email_to=email_to)
+        _send_email_data(email_to=email_to, email_data=email_data)
+    except Exception:
+        logger.exception("Failed to send email to %s", email_to)
+
+
+def send_reset_password_email(*, email_to: str, email: str, token: str) -> None:
+    try:
+        email_data = generate_reset_password_email(
+            email_to=email_to, email=email, token=token
+        )
+        _send_email_data(email_to=email_to, email_data=email_data)
+    except Exception:
+        logger.exception("Failed to send email to %s", email_to)
+
+
+def send_new_account_email(*, email_to: str, username: str, password: str) -> None:
+    try:
+        email_data = generate_new_account_email(
+            email_to=email_to, username=username, password=password
+        )
+        _send_email_data(email_to=email_to, email_data=email_data)
+    except Exception:
+        logger.exception("Failed to send email to %s", email_to)
+
+
 def generate_password_reset_token(email: str) -> str:
     delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
     now = datetime.now(UTC)
