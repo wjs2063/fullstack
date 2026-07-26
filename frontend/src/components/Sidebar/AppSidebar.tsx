@@ -9,6 +9,8 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
+import useBackendHealth from "@/hooks/useBackendHealth"
+import { cn } from "@/lib/utils"
 import { type Item, Main } from "./Main"
 import { User } from "./User"
 
@@ -19,6 +21,14 @@ const baseItems: Item[] = [
 
 export function AppSidebar() {
   const { user: currentUser } = useAuth()
+  const backendHealth = useBackendHealth()
+  const isApiConnected = backendHealth.isSuccess && backendHealth.data === true
+  const isApiUnavailable = !backendHealth.isPending && !isApiConnected
+  const apiStatus = backendHealth.isPending
+    ? "Checking API"
+    : isApiConnected
+      ? "API connected"
+      : "API unavailable"
 
   const items = currentUser?.is_superuser
     ? [
@@ -42,13 +52,24 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border">
         <div className="mx-2 flex items-center gap-2 rounded-md border border-sidebar-border bg-white/[0.04] px-2.5 py-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <span className="status-dot" />
+          <span
+            className={cn(
+              "size-2 rounded-full",
+              backendHealth.isPending && "animate-pulse bg-amber-500",
+              isApiConnected && "bg-emerald-500",
+              isApiUnavailable && "bg-destructive",
+            )}
+          />
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
             <p className="text-[11px] font-medium text-sidebar-foreground">
-              API connected
+              {apiStatus}
             </p>
             <p className="text-[9px] text-sidebar-foreground/45">
-              All systems operational
+              {isApiConnected
+                ? "Live health check passed"
+                : backendHealth.isPending
+                  ? "Running live health check"
+                  : "Live health check failed"}
             </p>
           </div>
         </div>

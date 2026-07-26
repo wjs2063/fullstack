@@ -20,11 +20,12 @@ const useAuth = () => {
   const queryClient = useQueryClient()
   const { showErrorToast } = useCustomToast()
 
-  const { data: user } = useQuery<UserPublic | null, Error>({
+  const currentUserQuery = useQuery<UserPublic | null, Error>({
     queryKey: ["currentUser"],
     queryFn: UsersService.readUserMe,
     enabled: isLoggedIn(),
   })
+  const { data: user } = currentUserQuery
 
   const signUpMutation = useMutation({
     mutationFn: (data: UserRegister) =>
@@ -63,6 +64,7 @@ const useAuth = () => {
     loginMutation,
     logout,
     user,
+    currentUserQuery,
   }
 }
 

@@ -12,6 +12,7 @@ test("Items page is accessible and shows correct title", async ({ page }) => {
   await page.goto("/items")
   await expect(page.getByRole("heading", { name: "Items" })).toBeVisible()
   await expect(page.getByText("Create and manage your items")).toBeVisible()
+  await expect(page.getByLabel("Environment: Development")).toBeVisible()
 })
 
 test("Sidebar logo navigates to the overview", async ({ page }) => {
@@ -22,6 +23,16 @@ test("Sidebar logo navigates to the overview", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Workspace overview" }),
   ).toBeVisible()
+})
+
+test("Environment health reflects a failed backend check", async ({ page }) => {
+  await page.route("**/api/v1/utils/health-check/", (route) => route.abort())
+  await page.goto("/")
+
+  const health = page.getByRole("region", { name: "Environment health" })
+  await expect(health.getByText("Backend API")).toBeVisible()
+  await expect(health.getByText("Unavailable")).toBeVisible()
+  await expect(health.getByText("System attention required")).toBeVisible()
 })
 
 test("Add Item button is visible", async ({ page }) => {

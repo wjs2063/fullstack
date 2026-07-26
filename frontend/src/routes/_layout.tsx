@@ -5,6 +5,7 @@ import {
   useRouterState,
 } from "@tanstack/react-router"
 
+import { EnvironmentBadge } from "@/components/Common/EnvironmentBadge"
 import { Footer } from "@/components/Common/Footer"
 import AppSidebar from "@/components/Sidebar/AppSidebar"
 import {
@@ -53,10 +54,7 @@ function Layout() {
               <span className="truncate font-medium">{pageName}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 rounded-md border bg-card px-2.5 py-1.5 text-xs text-muted-foreground">
-            <span className="status-dot" />
-            <span className="hidden sm:inline">Production</span>
-          </div>
+          <EnvironmentBadge />
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-[1440px]">

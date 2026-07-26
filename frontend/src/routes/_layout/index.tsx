@@ -5,7 +5,9 @@ import {
   ArrowRight,
   Boxes,
   CheckCircle2,
+  CircleAlert,
   Clock3,
+  LoaderCircle,
   ShieldCheck,
   UsersRound,
 } from "lucide-react"
@@ -14,6 +16,15 @@ import { ItemsService, UsersService } from "@/client"
 import { PageHeader } from "@/components/Common/PageHeader"
 import { Button } from "@/components/ui/button"
 import useAuth from "@/hooks/useAuth"
+import useBackendHealth from "@/hooks/useBackendHealth"
+
+type HealthState = "checking" | "healthy" | "unavailable"
+
+interface HealthCheck {
+  label: string
+  healthyLabel: string
+  state: HealthState
+}
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -27,7 +38,8 @@ export const Route = createFileRoute("/_layout/")({
 })
 
 function Dashboard() {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, currentUserQuery } = useAuth()
+  const backendHealthQuery = useBackendHealth()
   const itemsQuery = useQuery({
     queryKey: ["items", "dashboard"],
     queryFn: () => ItemsService.readItems({ skip: 0, limit: 100 }),
@@ -48,6 +60,47 @@ function Dashboard() {
       return bTime - aTime
     })
     .slice(0, 5)
+
+  const healthChecks: HealthCheck[] = [
+    {
+      label: "Backend API",
+      healthyLabel: "Connected",
+      state: backendHealthQuery.isPending
+        ? "checking"
+        : backendHealthQuery.isSuccess && backendHealthQuery.data === true
+          ? "healthy"
+          : "unavailable",
+    },
+    {
+      label: "Authentication",
+      healthyLabel: "Operational",
+      state: currentUserQuery.isPending
+        ? "checking"
+        : currentUserQuery.isSuccess && currentUser != null
+          ? "healthy"
+          : "unavailable",
+    },
+    {
+      label: "Data access",
+      healthyLabel: "Available",
+      state: itemsQuery.isPending
+        ? "checking"
+        : itemsQuery.isSuccess
+          ? "healthy"
+          : "unavailable",
+    },
+  ]
+  const allSystemsOperational = healthChecks.every(
+    ({ state }) => state === "healthy",
+  )
+  const hasUnavailableSystem = healthChecks.some(
+    ({ state }) => state === "unavailable",
+  )
+  const platformStatus = hasUnavailableSystem
+    ? "Degraded"
+    : allSystemsOperational
+      ? "Healthy"
+      : "Checking"
 
   const formatDate = (value?: string | null) => {
     if (!value) return "No timestamp"
@@ -91,10 +144,18 @@ function Dashboard() {
     },
     {
       label: "Platform status",
-      value: "Healthy",
-      helper: "All services online",
+      value: platformStatus,
+      helper: hasUnavailableSystem
+        ? "One or more checks failed"
+        : allSystemsOperational
+          ? "All live checks passed"
+          : "Running live checks",
       icon: Activity,
-      color: "text-emerald-500 bg-emerald-500/10",
+      color: hasUnavailableSystem
+        ? "text-destructive bg-destructive/10"
+        : allSystemsOperational
+          ? "text-emerald-500 bg-emerald-500/10"
+          : "text-amber-500 bg-amber-500/10",
     },
   ]
 
@@ -178,40 +239,86 @@ function Dashboard() {
           )}
         </section>
 
-        <section className="console-surface">
+        <section
+          aria-labelledby="environment-health-title"
+          className="console-surface"
+        >
           <div className="border-b px-5 py-4">
-            <h2 className="text-sm font-semibold">Environment health</h2>
+            <h2 id="environment-health-title" className="text-sm font-semibold">
+              Environment health
+            </h2>
             <p className="mt-0.5 text-xs text-muted-foreground">
               Current control plane checks
             </p>
           </div>
           <div className="space-y-1 p-3">
-            {[
-              ["Backend API", "Connected"],
-              ["Authentication", "Operational"],
-              ["Data access", "Available"],
-            ].map(([label, state]) => (
+            {healthChecks.map(({ label, healthyLabel, state }) => (
               <div
                 key={label}
                 className="flex items-center justify-between rounded-md px-2 py-3"
               >
                 <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="size-4 text-emerald-500" />
+                  {state === "healthy" ? (
+                    <CheckCircle2 className="size-4 text-emerald-500" />
+                  ) : state === "checking" ? (
+                    <LoaderCircle className="size-4 animate-spin text-amber-500" />
+                  ) : (
+                    <CircleAlert className="size-4 text-destructive" />
+                  )}
                   <span className="text-sm">{label}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{state}</span>
+                <span className="text-xs text-muted-foreground">
+                  {state === "healthy"
+                    ? healthyLabel
+                    : state === "checking"
+                      ? "Checking…"
+                      : "Unavailable"}
+                </span>
               </div>
             ))}
           </div>
-          <div className="mx-5 mb-5 rounded-md border border-emerald-500/20 bg-emerald-500/5 p-3">
+          <div
+            aria-live="polite"
+            className={`mx-5 mb-5 rounded-md border p-3 ${
+              hasUnavailableSystem
+                ? "border-destructive/20 bg-destructive/5"
+                : allSystemsOperational
+                  ? "border-emerald-500/20 bg-emerald-500/5"
+                  : "border-amber-500/20 bg-amber-500/5"
+            }`}
+          >
             <div className="flex items-center gap-2">
-              <span className="status-dot" />
-              <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                All systems operational
+              <span
+                className={`size-2 rounded-full ${
+                  hasUnavailableSystem
+                    ? "bg-destructive"
+                    : allSystemsOperational
+                      ? "bg-emerald-500"
+                      : "animate-pulse bg-amber-500"
+                }`}
+              />
+              <p
+                className={`text-xs font-medium ${
+                  hasUnavailableSystem
+                    ? "text-destructive"
+                    : allSystemsOperational
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-amber-600 dark:text-amber-400"
+                }`}
+              >
+                {hasUnavailableSystem
+                  ? "System attention required"
+                  : allSystemsOperational
+                    ? "All systems operational"
+                    : "Checking system status"}
               </p>
             </div>
             <p className="mt-2 text-xs leading-5 text-muted-foreground">
-              Your workspace is connected and ready for administrative tasks.
+              {hasUnavailableSystem
+                ? "One or more live checks failed. Try again after confirming the affected service."
+                : allSystemsOperational
+                  ? "Your workspace is connected and ready for administrative tasks."
+                  : "Live checks are still in progress."}
             </p>
           </div>
         </section>

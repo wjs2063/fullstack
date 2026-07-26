@@ -79,6 +79,17 @@ VITE_API_URL=https://api.my-domain.example.com
 
 Then, when you run the frontend, it will use that URL as the base URL for the API.
 
+## Environment Badge
+
+Set `VITE_APP_ENV` to control the environment badge in the application header:
+
+```env
+VITE_APP_ENV=staging
+```
+
+Supported values are `local`/`development`, `staging`, and `production`. Docker
+Compose maps the root `ENVIRONMENT` value to this frontend build variable.
+
 ## Code Structure
 
 The frontend code is structured as follows:
