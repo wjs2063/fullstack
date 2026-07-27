@@ -22,8 +22,8 @@
 - 📫 Email based password recovery.
 - 📬 [Mailcatcher](https://mailcatcher.me) for local email testing during development.
 - ✅ Tests with [Pytest](https://pytest.org).
-- 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
-- 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
+- 🌐 Nginx serves the frontend and proxies same-origin API and documentation requests.
+- 🚢 Docker Compose profiles support single-VM and split-VM deployments behind an external TLS load balancer.
 - 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
 
 ### Dashboard Login
@@ -222,7 +222,7 @@ Deployment docs: [deployment.md](./deployment.md).
 
 General development docs: [development.md](./development.md).
 
-This includes using Docker Compose, custom local domains, `.env` configurations, etc.
+This includes using Docker Compose profiles, local ports, `.env` configurations, etc.
 
 ## Release Notes
 
