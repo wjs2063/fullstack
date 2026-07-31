@@ -1,6 +1,7 @@
+import json
 import secrets
 import warnings
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Literal, Self, cast
 
 from pydantic import (
     AnyUrl,
@@ -8,18 +9,45 @@ from pydantic import (
     EmailStr,
     HttpUrl,
     PostgresDsn,
+    TypeAdapter,
     computed_field,
     model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+url_adapter = TypeAdapter(AnyUrl)
 
-def parse_cors(v: Any) -> list[str] | str:
-    if isinstance(v, str) and not v.startswith("["):
-        return [i.strip() for i in v.split(",") if i.strip()]
-    elif isinstance(v, list | str):
-        return v
-    raise ValueError(v)
+
+def normalize_origin(v: Any) -> str:
+    url = url_adapter.validate_python(v)
+    if url.scheme not in {"http", "https"}:
+        raise ValueError("CORS origins must use http or https")
+    if url.username or url.password or url.query or url.fragment:
+        raise ValueError("CORS origins cannot contain credentials, query, or fragment")
+    if url.path not in {None, "", "/"}:
+        raise ValueError("CORS origins cannot contain a path")
+    return str(url).rstrip("/")
+
+
+def parse_cors(v: Any) -> list[str]:
+    if isinstance(v, str):
+        raw_value = v.strip()
+        values = (
+            json.loads(raw_value) if raw_value.startswith("[") else raw_value.split(",")
+        )
+    elif isinstance(v, list):
+        values = v
+    else:
+        raise ValueError(v)
+    if not isinstance(values, list):
+        raise ValueError("CORS origins must be a list or comma-separated string")
+
+    origins: list[str] = []
+    for item in values:
+        candidate = item.strip() if isinstance(item, str) else item
+        if candidate:
+            origins.append(normalize_origin(candidate))
+    return origins
 
 
 class Settings(BaseSettings):
@@ -33,19 +61,18 @@ class Settings(BaseSettings):
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    FRONTEND_HOST: str = "http://localhost:5173"
+    FRONTEND_HOST: Annotated[str, BeforeValidator(normalize_origin)] = (
+        "http://localhost:5173"
+    )
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
-    BACKEND_CORS_ORIGINS: Annotated[
-        list[AnyUrl] | str, BeforeValidator(parse_cors)
-    ] = []
+    BACKEND_CORS_ORIGINS: Annotated[list[str] | str, BeforeValidator(parse_cors)] = []
 
     @computed_field  # type: ignore[prop-decorator]
     @property
     def all_cors_origins(self) -> list[str]:
-        return [str(origin).rstrip("/") for origin in self.BACKEND_CORS_ORIGINS] + [
-            self.FRONTEND_HOST
-        ]
+        origins = cast(list[str], self.BACKEND_CORS_ORIGINS)
+        return list(dict.fromkeys([*origins, self.FRONTEND_HOST]))
 
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None

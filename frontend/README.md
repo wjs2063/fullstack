@@ -57,7 +57,7 @@ bash ./scripts/generate-client.sh
 
 * Start the Docker Compose stack.
 
-* Download the OpenAPI JSON file from `http://localhost/api/v1/openapi.json` and copy it to a new file `openapi.json` at the root of the `frontend` directory.
+* Download the OpenAPI JSON file from `http://localhost:8000/api/v1/openapi.json` and copy it to a new file `openapi.json` at the root of the `frontend` directory.
 
 * To generate the frontend client, run:
 
@@ -78,6 +78,10 @@ VITE_API_URL=https://api.my-domain.example.com
 ```
 
 Then, when you run the frontend, it will use that URL as the base URL for the API.
+
+The production default is an empty value, which sends requests to the current
+frontend origin and lets Nginx proxy them. A non-empty value is embedded at build
+time and requires the frontend origin to be listed in `BACKEND_CORS_ORIGINS`.
 
 ## Environment Badge
 
