@@ -14,7 +14,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <div className="absolute -right-32 top-16 size-80 rounded-full border border-cyan-400/20" />
         <div className="absolute -right-16 top-32 size-48 rounded-full border border-orange-400/20" />
         <div className="relative">
-          <Logo variant="full" asLink={false} />
+          <Logo variant="full" />
         </div>
         <div className="relative max-w-xl">
           <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">
@@ -54,7 +54,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-sm">
             <div className="mb-8 lg:hidden">
-              <Logo variant="full" asLink={false} />
+              <Logo variant="full" />
             </div>
             <div className="console-surface p-6 sm:p-8">{children}</div>
             <p className="mt-5 text-center text-xs text-muted-foreground">

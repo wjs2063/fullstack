@@ -5,6 +5,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
+import { isAxiosError } from "axios"
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 import { ApiError, OpenAPI } from "./client"
@@ -18,20 +19,47 @@ OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }
 
-const isAuthenticationError = (error: unknown) =>
-  error instanceof ApiError && [401, 403].includes(error.status)
+let isRedirectingToLogin = false
+
+const shouldRedirectForStatus = (status: number) =>
+  status === 401 || status === 403 || status >= 500
+
+const isBackendConnectionError = (error: unknown) =>
+  isAxiosError(error) &&
+  error.response === undefined &&
+  error.code !== "ERR_CANCELED"
+
+const redirectToLogin = () => {
+  localStorage.removeItem("access_token")
+
+  if (window.location.pathname !== "/login" && !isRedirectingToLogin) {
+    isRedirectingToLogin = true
+    window.location.replace("/login")
+  }
+}
+
+OpenAPI.interceptors.response.use((response) => {
+  if (shouldRedirectForStatus(response.status)) {
+    redirectToLogin()
+  }
+
+  return response
+})
+
+const shouldRedirectToLogin = (error: unknown) =>
+  (error instanceof ApiError && shouldRedirectForStatus(error.status)) ||
+  isBackendConnectionError(error)
 
 const handleApiError = (error: Error) => {
-  if (isAuthenticationError(error)) {
-    localStorage.removeItem("access_token")
-    window.location.href = "/login"
+  if (shouldRedirectToLogin(error)) {
+    redirectToLogin()
   }
 }
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) =>
-        !isAuthenticationError(error) && failureCount < 3,
+        !shouldRedirectToLogin(error) && failureCount < 3,
     },
   },
   queryCache: new QueryCache({

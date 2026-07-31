@@ -7,7 +7,6 @@ const useBackendHealth = () =>
     queryKey: ["backend-health"],
     queryFn: UtilsService.healthCheck,
     refetchInterval: 30_000,
-    retry: 1,
   })
 
 export default useBackendHealth

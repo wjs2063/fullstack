@@ -25,14 +25,36 @@ test("Sidebar logo navigates to the overview", async ({ page }) => {
   ).toBeVisible()
 })
 
-test("Environment health reflects a failed backend check", async ({ page }) => {
+test("Redirects to login when the backend returns 500", async ({ page }) => {
+  await page.route("**/api/v1/items/**", (route) =>
+    route.fulfill({
+      status: 500,
+      contentType: "application/json",
+      body: JSON.stringify({ detail: "Internal Server Error" }),
+    }),
+  )
+
+  await page.goto("/items")
+
+  await expect(page).toHaveURL("/login")
+  await expect(
+    page.getByRole("heading", { name: "Sign in to FlowOps" }),
+  ).toBeVisible()
+  await expect(
+    page.evaluate(() => localStorage.getItem("access_token")),
+  ).resolves.toBeNull()
+})
+
+test("Redirects to login when the backend connection fails", async ({
+  page,
+}) => {
   await page.route("**/api/v1/utils/health-check/", (route) => route.abort())
   await page.goto("/")
 
-  const health = page.getByRole("region", { name: "Environment health" })
-  await expect(health.getByText("Backend API")).toBeVisible()
-  await expect(health.getByText("Unavailable")).toBeVisible()
-  await expect(health.getByText("System attention required")).toBeVisible()
+  await expect(page).toHaveURL("/login")
+  await expect(
+    page.evaluate(() => localStorage.getItem("access_token")),
+  ).resolves.toBeNull()
 })
 
 test("Add Item button is visible", async ({ page }) => {

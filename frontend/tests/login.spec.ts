@@ -37,6 +37,14 @@ test("Forgot Password link is visible", async ({ page }) => {
   ).toBeVisible()
 })
 
+test("Logo links to the home page", async ({ page }) => {
+  await page.goto("/login")
+
+  await expect(
+    page.getByRole("link", { name: "Go to overview" }),
+  ).toHaveAttribute("href", "/")
+})
+
 test("Log in with valid email and password ", async ({ page }) => {
   await page.goto("/login")
 
